@@ -1,6 +1,6 @@
 # output and debug files 
-.DS_Store
-.gitignore
+.DS_Store*
+.gitignore*
 .eslintrc.json
 debugDump.json
 googleAuth.json
