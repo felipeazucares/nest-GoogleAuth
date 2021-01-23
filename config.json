@@ -1,0 +1,26 @@
+{
+    "issueToken": {
+        "eventType": "Network.requestWillBeSent",
+        "objectType": "request",
+        "propertyToMatch": "url",
+        "stringToFind": "issueToken",
+        "headerKey": "issueToken"
+    },
+    "cookies": {
+        "eventType": "Network.responseReceived",
+        "objectType": "response",
+        "propertyToMatch": "url",
+        "stringToFind": "oauth2/iframe",
+        "headerToReturn": "set-cookie",
+        "headerKey": "cookies"
+    },
+    "apiKey": {
+        "eventType": "Network.requestWillBeSent",
+        "objectType": "request",
+        "propertyToMatch": "url",
+        "stringToFind": "issue_jwt",
+        "headerToReturn": "x-goog-api-key",
+        "headerKey": "apikey"
+    },
+    "debug": false
+}

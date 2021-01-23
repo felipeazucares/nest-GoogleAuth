@@ -1,0 +1,32 @@
+{
+  "name": "nestauth",
+  "version": "1.0.0",
+  "description": "Node application to automate collection of google authentication items for Nest login.",
+  "main": "nestAuth.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/felipeazucares/nestAuth.git"
+  },
+  "keywords": [],
+  "author": "Phil Suggars",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/felipeazucares/nestAuth/issues"
+  },
+  "homepage": "https://github.com/felipeazucares/nestAuth#readme",
+  "dependencies": {
+    "puppeteer": "^5.5.0",
+    "puppeteer-extra": "^3.1.16",
+    "puppeteer-extra-plugin-stealth": "^2.6.6"
+  },
+  "devDependencies": {
+    "eslint": "^7.18.0",
+    "eslint-config-standard": "^16.0.2",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^4.2.1"
+  }
+}
