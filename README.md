@@ -26,7 +26,7 @@ This application replaces the manual process, by automating the login process vi
 
 # Installation
 
-prequisites: node 14+, npm. All others are install during npm install.
+prequisites: node ~10, npm. All others are installed during install process.
 
 	git clone https://github.com/felipeazucares/nest-GoogleAuth.git
     cd nest-GoogleAuth.git
