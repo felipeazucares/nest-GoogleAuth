@@ -26,11 +26,10 @@ This application replaces the manual process, by automating the login process vi
 
 # Installation
 
-prequisites: node, npm. All others are install during npm install.
+prequisites: node 14+, npm. All others are install during npm install.
 
-    mkdir yourDir
-    cd yourDir
 	git clone https://github.com/felipeazucares/nest-GoogleAuth.git
+    cd nest-GoogleAuth.git
     npm install
 
 # Configuration
@@ -81,4 +80,4 @@ Note: that the application supports two types of filter. If `headerToReturn` is 
 
 # Usage
 
-    node nestAUth.js u=yourGoogleUserId p=yourGooglePassword
+    node nestAuth.js u=yourGoogleUserId p=yourGooglePassword
