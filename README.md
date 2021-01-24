@@ -38,13 +38,6 @@ prequisites: node, npm. All others are install during npm install.
 The items that we want to collect from the network traffic during the login process are specified in the `config.json`. The one supplied with the application are complete/correct as of publishing:  
 
 ```
-`eventType` is the type of event to be tracked. The application accepts 'Network.requestWillBeSent' or 'Network.responseReceived'.
-`objectType` is 'request' or 'response'.
-`propertyToMatch` is the name of the property within the specified `objecttype` that we're filtering by.
-`stringToFind` value that we're looking for within `proprtyToMatch`.
-`headerToReturn` [optional' the header that will be returned and stored in the googleAuth.json file.
-`headerKey` is the key to assign to the `headerToReturn` value in the googleAuth.json file.
-
 {
 "issueToken": {
     "eventType": "Network.requestWillBeSent",
