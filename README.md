@@ -78,9 +78,9 @@ The items that we need to collect from the network traffic during the google log
   
 Note: that the application supports three types of filter.
 
-1 - If `headerToReturn` is not specified then the network traffic monitoring returns traffic with a propertyToMatch value that matches what is specified in the `stringToFind` property, and names it whatever we have specified in the `headerKey`. This is because sometimes (e.g. issueToken) we don't want to return a header from the intercepted traffic, just the intercepted traffic itself. 
-2 - If `headerToReturn *is* provided, then the monitor collects traffic with a propertyToMatch value that matches what is specified in `stringToFind` and returns the property specified in the `headerToReturn` field, as the name specified in the `headerKey`.
-3 - Finally, if `propertyToMatch2` is specified then the `propertyToMatch` of incoming traffic is filtered for the `stringToMatch`. The remaining traffic is then checked for the existence of `propertyToMatch2`, returning any item's `propertyToReturn` value, named as per the `headerKey` field. 
+1. If `headerToReturn` is not specified then the network traffic monitoring returns traffic with a propertyToMatch value that matches what is specified in the `stringToFind` property, and names it whatever we have specified in the `headerKey`. This is because sometimes (e.g. issueToken) we don't want to return a header from the intercepted traffic, just the intercepted traffic itself. 
+2. If `headerToReturn *is* provided, then the monitor collects traffic with a propertyToMatch value that matches what is specified in `stringToFind` and returns the property specified in the `headerToReturn` field, as the name specified in the `headerKey`.
+3. Finally, if `propertyToMatch2` is specified then the `propertyToMatch` of incoming traffic is filtered for the `stringToMatch`. The remaining traffic is then checked for the existence of `propertyToMatch2`, returning any item's `propertyToReturn` value, named as per the `headerKey` field. 
 
 # Usage
 
