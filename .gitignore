@@ -2,8 +2,8 @@
 .DS_Store*
 .gitignore*
 .eslintrc.json
-debugDump.json
-googleAuth.json
+debugDump*.json
+googleAuth*.json
 # Logs
 logs
 *.log

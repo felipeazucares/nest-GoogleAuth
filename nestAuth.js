@@ -7,18 +7,19 @@ const puppeteer = require('puppeteer-extra')
 // Need this plug in to avoid automation countermeasures on the login page.
 const StealthPlugin = require('puppeteer-extra-plugin-stealth')
 puppeteer.use(StealthPlugin())
+const isPi = require('detect-rpi')
 
-const waitTillHTMLRendered = async (browser, page, timeout = 30000) => {
+const waitTillHTMLRendered = async (browser, page, timeout = 360000) => {
   // Props to Anand Mahajan https://stackoverflow.com/users/4345716/anand-mahajan
   // this function waits for the size of the page to settle -
   // required as some scripts on the page are writing to it even though
   // it's loaded.
-  const checkDurationMsecs = 1000
+  const checkDurationMsecs = 4000
   const maxChecks = timeout / checkDurationMsecs
   let lastHTMLSize = 0
   let checkCounts = 1
   let countStableSizeIterations = 0
-  const minStableSizeIterations = 3
+  const minStableSizeIterations = 4
 
   console.log('Waiting for page content to settle')
 
@@ -65,6 +66,8 @@ async function createNetworkListener ({
   propertyToMatch, // Sub-property we want to check in the objectType e.g 'url'
   stringToFind, // Setting for sub-property we're looking for e.g 'issueToken'
   headerToReturn, // if we find the value in the sub-property what do we want to return e.g
+  propertyToMatch2, // if specifcied the 2ns property to check
+  subPropertyToReturn, // item we're sending back if a second property is there
   headerKey, // key for the item we return in the returned object
   debug // whether we should just create a debug object
 }) {
@@ -76,6 +79,8 @@ async function createNetworkListener ({
       propertyToMatch,
       stringToFind,
       headerToReturn,
+      propertyToMatch2,
+      subPropertyToReturn,
       headerKey
     })
   }
@@ -109,6 +114,18 @@ async function createNetworkListener ({
     })
   }
 
+  const addNetworkListenerSubProperty = (eventName) => {
+    cdpClient.on(eventName, request => {
+      if (request[objectType][propertyToMatch].includes(stringToFind)) {
+        if (request[objectType][propertyToMatch2] !== undefined) {
+          Object.assign(cdpData, {
+            [headerKey]: request[objectType][propertyToMatch2][subPropertyToReturn]
+          })
+        }
+      }
+    })
+  }
+
   const addNetworkListenerDebug = (eventName) => {
     cdpClient.on(eventName, request => {
       cdpData[request.requestId] = cdpData[request.requestId] || {}
@@ -120,11 +137,16 @@ async function createNetworkListener ({
 
   if (!debug) {
     // if there is no headerToReturn value then we are asking to just return a top level property
-    if (!headerToReturn) {
+    if (!headerToReturn && !propertyToMatch2) {
       addNetworkListenerProperty(eventType)
     } else {
-      // so we're doing a property and header search
-      addNetworkListenerHeader(eventType)
+      if (!propertyToMatch2) {
+        // so we're doing a property and header search
+        addNetworkListenerHeader(eventType)
+      } else {
+        // otherwise were looking for a property of a header
+        addNetworkListenerSubProperty(eventType)
+      }
     }
   } else {
     // create debug item(s)
@@ -132,20 +154,19 @@ async function createNetworkListener ({
     addNetworkListenerDebug('Network.requestWillBeSent')
     addNetworkListenerDebug('Network.responseReceived')
   }
-
   return cdpData
 }
 
 async function pageNavigation (page, browser, userId, password) {
   // navigate browser from nest main page to authorisation completed
-
   // set user agent may help with avoiding bot-countermeasures
   await page.setUserAgent('Mozilla/5.0 (Macintosh Intel Mac OS X 11_1_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.101 Safari/537.36')
 
   // go to nest page  & wait till it's loaded
   console.log('Navigating to : https://home.nest.com')
   await page.goto('https://home.nest.com', {
-    waitUntil: 'domcontentloaded'
+    waitUntil: 'domcontentloaded',
+    setDefaultNavigationTimeOut: 240000
   })
 
   // locate login button
@@ -164,7 +185,7 @@ async function pageNavigation (page, browser, userId, password) {
     waitUntil: 'domcontentloaded'
   })
   await page.waitForSelector('#identifierId', {
-    timeout: 10000
+    timeout: 120000
   })
 
   // type userid & hit enter
@@ -187,10 +208,10 @@ async function pageNavigation (page, browser, userId, password) {
   await page.keyboard.press('Enter')
 
   // and wait for authorisation process to complete
-  await page.waitForNavigation({
+  await Promise.all([page.waitForNavigation({
     waitUntil: 'domcontentloaded'
-  })
-  await waitTillHTMLRendered(browser, page)
+  }),
+  await waitTillHTMLRendered(browser, page)])
 }
 
 const nestLogin = async ({
@@ -208,21 +229,35 @@ const nestLogin = async ({
 
   try {
     // ! Need to run this headless otherwise some XHRs do not appear!
-    browser = await puppeteer.launch({
-      headless: true
-    })
-    page = await browser.newPage()
 
+    if (isPi()) {
+      console.log('Raspberry Pi detected, lauching chromium at /usr/bin/chromium-browser')
+      browser = await puppeteer.launch({ executablePath: '/usr/bin/chromium-browser', headless: true })
+    } else {
+      browser = await puppeteer.launch({
+        headless: true
+      })
+    }
+    // ...
+    page = await browser.newPage()
+    // increase default timeout if we're runnign this on a low end machine render times can be slow
+    await page.setDefaultNavigationTimeout(120000)
     // set up network event capture
 
     // convert config.json keys into enumerable array
     const configKeys = Object.keys(config)
 
+    // check the debug flag in the config.json
+    if (config.debug !== undefined) {
+      if (config.debug === true) {
+        console.log('Debug mode on')
+      }
+      debug = config.debug
+      configKeys.pop()
+    }
     // check for a debug flag on the config.json. If we have one set up debug mode and remove from token list
 
-    if (configKeys.includes('debug')) {
-      debug = true
-      configKeys.pop()
+    if (debug) {
       // create unfiltered listeners to capture everything
       debugDump = await createNetworkListener({
         page: page,
@@ -237,6 +272,8 @@ const nestLogin = async ({
         propertyToMatch: config[token].propertyToMatch,
         stringToFind: config[token].stringToFind,
         headerToReturn: config[token].headerToReturn,
+        propertyToMatch2: config[token].propertyToMatch2,
+        subPropertyToReturn: config[token].subPropertyToReturn,
         headerKey: config[token].headerKey
       })
       networkData.push(networkListener)
