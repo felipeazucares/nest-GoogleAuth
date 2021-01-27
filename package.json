@@ -1,6 +1,6 @@
 {
   "name": "nestauth",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Node application to automate collection of google authentication items for Nest login.",
   "main": "nestAuth.js",
   "scripts": {
